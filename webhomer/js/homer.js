@@ -775,7 +775,7 @@ function showRtcpStats(corr_id, from_time, to_time, apiurl, winid, codec, loc) {
                             $('#rtcpinfodata'+winid).empty();      
                                              
                             var table = "";
-                            table +='Report:<BR><table border="1" id="data" cellspacing="0" width="95%" style="background: #f9f9f9;">';     
+                            table +='Report:<BR><div style="width:600px;height:300px;overflow:auto;"><table border="1" id="data" cellspacing="0" width="95%" style="background: #f9f9f9;">';     
                             table += "<tr>";
                             table += "<th>ID&nbsp;</th>";
                             table += "<th>Type&nbsp;</th>";
@@ -797,6 +797,7 @@ function showRtcpStats(corr_id, from_time, to_time, apiurl, winid, codec, loc) {
                                    //table += val.msg+'<BR>');
                                    
                                    var rtcpobj = jQuery.parseJSON( val.msg );
+                                   if (!rtcpobj) { return 1; }
                                    var ts;
                                    var totalpkts;
 				   var si = rtcpobj.sender_information;
@@ -809,6 +810,13 @@ function showRtcpStats(corr_id, from_time, to_time, apiurl, winid, codec, loc) {
 				   	totalpkts = 0;
 				   }
 				   var rp = rtcpobj.report_blocks;
+				   if (rp) {
+				   	//console.log('There is a report_blocks');
+				   }
+				   else {
+				   	//console.log('no report_blocks here');
+				   	return 1; //Return a non-false value to go to the next iteration
+				   }
 				   
 				   var msgts = parseInt(msg.data[index].micro_ts/1000);
 				   
@@ -846,7 +854,7 @@ function showRtcpStats(corr_id, from_time, to_time, apiurl, winid, codec, loc) {
                                                                       
                                  });                                                                  
                                  
-                                 table += "</table>";
+                                 table += "</table></div>";
                                  $('#rtcpinfodata'+winid).html(table);      
 
                                  makeRtcpChart(winid, jitter, packetlost, mosarray);

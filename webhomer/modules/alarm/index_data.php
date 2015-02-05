@@ -31,6 +31,13 @@ $included = 1;
 include('../../configuration.php');
 } else { $included = 0; }
 
+// Get Nodes IDs and create location GET parameter
+$db = new HomerDB;
+$mynodesid = array();
+$nodes = $db->getNodes();
+foreach($nodes as $node) {
+        $locationsGetParameter .= "location[]=$node->id&";
+}
 
 date_default_timezone_set(CFLOW_TIMEZONE);
 $offset = STAT_OFFSET;
@@ -264,6 +271,7 @@ jQuery(document).ready(function($) {
                                var diff = 1; // minutes
                                var diff2 = 0;
                                var source_ip = "";
+                               var ipfilter = "";
                                var method = "";
 
                                // from 
@@ -279,10 +287,23 @@ jQuery(document).ready(function($) {
                                       var ttime = (parseInt(nt[0])+diff2)+":59:"+nt[2];
                                }
                                //console.log(time[1]+" "+ttime);
-                               if(full.source_ip != "0.0.0.0") source_ip="source_ip="+full.source_ip+"&";
-                               if(full.type.indexOf("Too Many ") !== -1) method="method="+full.type.substring(9)+"&";
+                           
+                               
+                               if(full.type.indexOf("Too Many ") !== -1){
+                                        method="method="+full.type.substring(9)+"&";
+                               }
 
-                            return "<center><a href='?"+method+source_ip+"location[]=1&node=&from_date="+time[0]+"&from_time="+ntime+"&to_date="+time[0]+"&to_time="+ttime+"&limit=100&task=result&component=search'>"+data+"</a></center>";   
+                               if(full.source_ip !== "0.0.0.0"){
+                                        ipfilter="destination_ip="+full.source_ip+"&";
+                               }
+
+                               if(full.type.indexOf("scanner") !== -1){
+                                        ipfilter="source_ip="+full.source_ip+"&";
+                               }
+                               
+                               var locationsParameter = '<?php echo $locationsGetParameter; ?>';
+
+                            return "<center><a href='?"+method+ipfilter+locationsParameter+"node=&from_date="+time[0]+"&from_time="+ntime+"&to_date="+time[0]+"&to_time="+ttime+"&limit=100&task=result&component=search'>"+data+"</a></center>";
         	             }
 	                },
 	                { 
